@@ -36,6 +36,14 @@ stages:
         command: custom
         customCommand: test
 
+    - task: PublishCodeCoverageResults@2
+      displayName: Publish code coverage
+      inputs:
+        codeCoverageTool: Cobertura
+        summaryFileLocation: coverage/lcov.info
+        reportDirectory: coverage
+        failIfCoverageEmpty: true
+
     - task: Npm@1
       displayName: Build application
       inputs:
