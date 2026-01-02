@@ -6,7 +6,6 @@ pool:
 
 variables:
   imageName: node-ci-cd-demo
-  npm_cache_folder: $(Pipeline.Workspace)/.npm
 
 stages:
 - stage: Build
@@ -20,22 +19,10 @@ stages:
       inputs:
         versionSpec: '18.x'
 
-    # npm cache restore
-    - task: Cache@2
-      displayName: Restore npm cache
-      inputs:
-        key: |
-          npm | "$(Agent.OS)" | package-lock.json
-        restoreKeys: |
-          npm | "$(Agent.OS)"
-        path: $(npm_cache_folder)
-
     - task: Npm@1
       displayName: Install dependencies
       inputs:
         command: install
-      env:
-        npm_config_cache: $(npm_cache_folder)
 
     - task: Npm@1
       displayName: Run lint
