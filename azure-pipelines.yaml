@@ -61,7 +61,7 @@ stages:
       displayName: Build and Push Docker image
       inputs:
         command: buildAndPush
-        repository: yourdockerhubusername/node-ci-cd-demo
+        repository: mindcrusaders/node-ci-cd-demo
         dockerfile: Dockerfile
         containerRegistry: DockerHubServiceConnection
         buildContext: .
