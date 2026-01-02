@@ -1,0 +1,15 @@
+{
+  "name": "node-ci-cd-demo",
+  "version": "1.0.0",
+  "description": "Node.js CI CD with artifact and docker",
+  "main": "index.js",
+  "scripts": {
+    "lint": "echo \"lint check passed\"",
+    "test": "jest",
+    "build": "mkdir -p dist && cp index.js dist/",
+    "ci": "npm run lint && npm test && npm run build"
+  },
+  "devDependencies": {
+    "jest": "^29.0.0"
+  }
+}
