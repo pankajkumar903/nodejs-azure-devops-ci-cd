@@ -6,41 +6,67 @@ pool:
 
 variables:
   imageName: node-ci-cd-demo
+  npm_cache_folder: $(Pipeline.Workspace)/.npm
 
-steps:
-- task: NodeTool@0
-  inputs:
-    versionSpec: '18.x'
-  displayName: Install Node.js
+stages:
+- stage: Build
+  displayName: Build Stage
+  jobs:
+  - job: Build
+    displayName: App Build
+    steps:
+    - task: NodeTool@0
+      displayName: Install Node.js
+      inputs:
+        versionSpec: '18.x'
 
-- script: |
-    npm install
-  displayName: Install dependencies
+    # npm cache restore
+    - task: Cache@2
+      displayName: Restore npm cache
+      inputs:
+        key: |
+          npm | "$(Agent.OS)" | package-lock.json
+        restoreKeys: |
+          npm | "$(Agent.OS)"
+        path: $(npm_cache_folder)
 
-- script: |
-    npm run lint
-  displayName: Run lint
+    - task: Npm@1
+      displayName: Install dependencies
+      inputs:
+        command: install
+      env:
+        npm_config_cache: $(npm_cache_folder)
 
-- script: |
-    npm test
-  displayName: Run tests
+    - task: Npm@1
+      displayName: Run lint
+      inputs:
+        command: custom
+        customCommand: run lint
 
-- script: |
-    npm run build
-  displayName: Build application
+    - task: Npm@1
+      displayName: Run tests
+      inputs:
+        command: custom
+        customCommand: test
 
-- task: PublishBuildArtifacts@1
-  inputs:
-    PathtoPublish: dist
-    ArtifactName: node-build
-    publishLocation: Container
-  displayName: Publish build artifact
+    - task: Npm@1
+      displayName: Build application
+      inputs:
+        command: custom
+        customCommand: run build
 
-- task: Docker@2
-  displayName: Build Docker image
-  inputs:
-    command: build
-    repository: $(imageName)
-    dockerfile: Dockerfile
-    tags: |
-      $(Build.BuildId)
+    - task: PublishBuildArtifacts@1
+      displayName: Publish build artifact
+      inputs:
+        PathtoPublish: dist
+        ArtifactName: node-build
+        publishLocation: Container
+
+    - task: Docker@2
+      displayName: Build Docker image
+      inputs:
+        command: build
+        repository: $(imageName)
+        dockerfile: Dockerfile
+        tags: |
+          $(Build.BuildId)
